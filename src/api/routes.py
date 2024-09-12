@@ -37,3 +37,20 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
     return jsonify({"msg": "user created successfully"}), 201
+
+
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(email=data['email']).first()
+    if not user or not bcrypt.check_password_hash(user.password, data['password']):
+        return jsonify({"msg":"invalid email or password"}), 401
+    
+    access_token = create_access_token(identity=user.email)
+    return jsonify(access_token = access_token), 200 
+
+@api.route('/private', methods=['GET'])
+@jwt_required()
+def private_route():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as = current_user), 200
