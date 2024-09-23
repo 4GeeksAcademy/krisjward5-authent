@@ -46,6 +46,78 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
+			},
+
+			syncSessionToken: () => {
+				const token = sessionStorage.getItem('token'); 
+					if (token&&token!==""&&token!==undefined){
+						setStore ({token:token})}
+			}, 
+
+			login: async(email, password) => {
+				const options = {
+					method: "POST", 
+					headers: {
+						"Content-Type": "application/json"
+					}, 
+					body: JSON.stringify(
+						{
+							email: email,
+							password: password
+						}
+					)
+				}
+				try{
+					const response = await fetch(process.env.BACKEND_URL+"/api/token", options)
+					if (response.status!==200){
+						alert("error response code", response.status) 
+						return false; 
+					}
+					const data = await response.json()
+					console.log("access token", data);
+					sessionStorage.setItem("token", data.access_token);
+					setStore({
+						token: data.access_token
+					})
+					return true
+				}
+				catch(error){
+					console.log("login error, please try again")
+				}
+			},
+			logout: () =>{
+				sessionStorage.removeItem("token");
+				console.log("you are logged out")
+				setStore({
+					token: null
+				})
+			}, 
+			addUser: async(email, password) => {
+				const options = {
+					method: "POST", 
+					headers: {
+						"Content-Type": "application/json"
+					}, 
+					body: JSON.stringify(
+						{
+							email: email,
+							password: password
+						}
+					)
+				}
+				try{
+					const response = await fetch(process.env.BACKEND_URL+"api/signup", options)
+					if (response.status!==200){
+						alert("error response code", response.status) 
+						return false; 
+					}
+					const data = await response.json()
+					console.log("from the backend", data);
+					return true
+				}
+				catch(error){
+					console.log("login error")
+				}
 			}
 		}
 	};
