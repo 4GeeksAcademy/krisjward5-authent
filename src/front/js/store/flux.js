@@ -13,7 +13,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+		token: null,
+		invoices: [],
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -57,6 +59,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			login: async(email, password) => {
 				const options = {
 					method: "POST", 
+					mode: "cors",
 					headers: {
 						"Content-Type": "application/json"
 					}, 
@@ -68,7 +71,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					)
 				}
 				try{
-					const response = await fetch(process.env.BACKEND_URL+"/api/token", options)
+					const response = await fetch(process.env.BACKEND_URL+"/api/login", options)
 					if (response.status!==200){
 						alert("error response code", response.status) 
 						return false; 
@@ -95,6 +98,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			addUser: async(email, password) => {
 				const options = {
 					method: "POST", 
+					mode: "cors",
 					headers: {
 						"Content-Type": "application/json"
 					}, 
@@ -106,17 +110,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 					)
 				}
 				try{
-					const response = await fetch(process.env.BACKEND_URL+"api/signup", options)
-					if (response.status!==200){
-						alert("error response code", response.status) 
-						return false; 
+					// const response = await fetch(process.env.BACKEND_URL+"api/signup", options)
+					const response = await fetch(`${process.env.BACKEND_URL}/api/signup`, options)
+					if (!response.ok){
+						const errorData = await response.json();
+						alert(`error: ${errorData.message || response.status}`);
+						return false;
 					}
+					// if (response.status==200){
+					// 	alert("error response code", response.status) 
+					// 	return false; 
+					// }
 					const data = await response.json()
 					console.log("from the backend", data);
-					return true
+					return true;
 				}
 				catch(error){
-					console.log("login error")
+					console.log("sign up error")
 				}
 			}
 		}
