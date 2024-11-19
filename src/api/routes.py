@@ -22,13 +22,19 @@ def signup():
     if user:
         return jsonify({"msg":"email already exists"}), 400
     
-    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    new_user = User(email=data['email'], password = hashed_password)
+    try:
 
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"msg": "user created successfully"}), 201
+        hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        new_user = User(email=data['email'], password = hashed_password, is_active=True)
 
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"msg": "user created successfully"}), 201
+    
+    except Exception as e: 
+        db.session.rollback()
+        print(f"error: {e}")
+        return jsonify({"msg": "server error"}, 500)
 
 @api.route('/login', methods=['POST'])
 def login():

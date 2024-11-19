@@ -96,6 +96,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				})
 			}, 
 			addUser: async(email, password) => {
+				if (!email || !password) {
+					alert("email and password required");
+					return false;
+				}
 				const options = {
 					method: "POST", 
 					mode: "cors",
@@ -110,23 +114,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 					)
 				}
 				try{
-					// const response = await fetch(process.env.BACKEND_URL+"api/signup", options)
 					const response = await fetch(`${process.env.BACKEND_URL}/api/signup`, options)
 					if (!response.ok){
 						const errorData = await response.json();
 						alert(`error: ${errorData.message || response.status}`);
 						return false;
 					}
-					// if (response.status==200){
-					// 	alert("error response code", response.status) 
-					// 	return false; 
-					// }
 					const data = await response.json()
 					console.log("from the backend", data);
 					return true;
 				}
 				catch(error){
-					console.log("sign up error")
+					console.error("sign up error", error)
 				}
 			}
 		}
